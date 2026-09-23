@@ -1,0 +1,227 @@
+import { LOCALES } from './i18n'
+import type { Language } from './types'
+
+// Search aliases only. Offsets and daylight saving rules always come from the chosen IANA zone.
+const ABBREVIATIONS: Record<string, string> = {
+  'Eastern Time': 'ET',
+  'Eastern Standard Time': 'EST',
+  'Eastern Daylight Time': 'EDT',
+  'Central Time': 'CT',
+  'Central Standard Time': 'CST',
+  'Central Daylight Time': 'CDT',
+  'Mountain Time': 'MT',
+  'Mountain Standard Time': 'MST',
+  'Mountain Daylight Time': 'MDT',
+  'Pacific Time': 'PT',
+  'Pacific Standard Time': 'PST',
+  'Pacific Daylight Time': 'PDT',
+  'Alaska Time': 'AKT',
+  'Alaska Standard Time': 'AKST',
+  'Alaska Daylight Time': 'AKDT',
+  'Hawaii-Aleutian Time': 'HAT',
+  'Hawaii-Aleutian Standard Time': 'HST HAST',
+  'Hawaii-Aleutian Daylight Time': 'HDT HADT',
+  'Atlantic Time': 'AT',
+  'Atlantic Standard Time': 'AST',
+  'Atlantic Daylight Time': 'ADT',
+  'Newfoundland Time': 'NT',
+  'Newfoundland Standard Time': 'NST',
+  'Newfoundland Daylight Time': 'NDT',
+  'Cuba Standard Time': 'CST',
+  'Cuba Daylight Time': 'CDT',
+  'St. Pierre & Miquelon Standard Time': 'PMST',
+  'St. Pierre & Miquelon Daylight Time': 'PMDT',
+  'Acre Standard Time': 'ACT',
+  'Amazon Standard Time': 'AMT',
+  'Brasilia Standard Time': 'BRT',
+  'Argentina Standard Time': 'ART',
+  'Uruguay Standard Time': 'UYT',
+  'Paraguay Standard Time': 'PYT',
+  'Chile Standard Time': 'CLT',
+  'Chile Summer Time': 'CLST',
+  'Colombia Standard Time': 'COT',
+  'Peru Standard Time': 'PET',
+  'Bolivia Time': 'BOT',
+  'Ecuador Time': 'ECT',
+  'Venezuela Time': 'VET',
+  'Guyana Time': 'GYT',
+  'French Guiana Time': 'GFT',
+  'Suriname Time': 'SRT',
+  'Fernando de Noronha Standard Time': 'FNT',
+  'Falkland Islands Standard Time': 'FKT',
+  'South Georgia Time': 'GST',
+  'Greenwich Mean Time': 'GMT',
+  'Coordinated Universal Time': 'UTC',
+  'British Summer Time': 'BST',
+  'Irish Standard Time': 'IST',
+  'Western European Time': 'WET',
+  'Western European Standard Time': 'WET',
+  'Western European Summer Time': 'WEST',
+  'Central European Time': 'CET',
+  'Central European Standard Time': 'CET',
+  'Central European Summer Time': 'CEST',
+  'Eastern European Time': 'EET',
+  'Eastern European Standard Time': 'EET',
+  'Eastern European Summer Time': 'EEST',
+  'Azores Standard Time': 'AZOT',
+  'Azores Summer Time': 'AZOST',
+  'Moscow Standard Time': 'MSK',
+  'Türkiye Standard Time': 'TRT',
+  'Turkey Time': 'TRT',
+  'West Africa Time': 'WAT',
+  'Central Africa Time': 'CAT',
+  'East Africa Time': 'EAT',
+  'South Africa Standard Time': 'SAST',
+  'Cape Verde Standard Time': 'CVT',
+  'Mauritius Standard Time': 'MUT',
+  'Réunion Time': 'RET',
+  'Seychelles Time': 'SCT',
+  'Arabian Standard Time': 'AST',
+  'Gulf Standard Time': 'GST',
+  'Israel Standard Time': 'IST',
+  'Israel Daylight Time': 'IDT',
+  'Iran Standard Time': 'IRST',
+  'Afghanistan Time': 'AFT',
+  'Pakistan Standard Time': 'PKT',
+  'India Standard Time': 'IST',
+  'Nepal Time': 'NPT',
+  'Bangladesh Standard Time': 'BST BDT',
+  'Bhutan Time': 'BTT',
+  'Myanmar Time': 'MMT',
+  'Indochina Time': 'ICT',
+  'China Standard Time': 'CST',
+  'Taiwan Standard Time': 'CST',
+  'Hong Kong Standard Time': 'HKT',
+  'Singapore Standard Time': 'SGT',
+  'Malaysia Time': 'MYT',
+  'Brunei Time': 'BNT',
+  'Philippine Standard Time': 'PHT PHST PST',
+  'Japan Standard Time': 'JST',
+  'Korean Standard Time': 'KST',
+  'Western Indonesia Time': 'WIB',
+  'Central Indonesia Time': 'WITA',
+  'Eastern Indonesia Time': 'WIT',
+  'Timor-Leste Time': 'TLT',
+  'Maldives Time': 'MVT',
+  'Indian Ocean Time': 'IOT',
+  'Armenia Standard Time': 'AMT',
+  'Azerbaijan Standard Time': 'AZT',
+  'Georgia Standard Time': 'GET',
+  'Kazakhstan Time': 'KZT',
+  'Kyrgyzstan Time': 'KGT',
+  'Tajikistan Time': 'TJT',
+  'Turkmenistan Standard Time': 'TMT',
+  'Uzbekistan Standard Time': 'UZT',
+  'Ulaanbaatar Standard Time': 'ULAT',
+  'Khovd Standard Time': 'HOVT',
+  'Samara Standard Time': 'SAMT',
+  'Yekaterinburg Standard Time': 'YEKT',
+  'Omsk Standard Time': 'OMST',
+  'Krasnoyarsk Standard Time': 'KRAT',
+  'Irkutsk Standard Time': 'IRKT',
+  'Yakutsk Standard Time': 'YAKT',
+  'Vladivostok Standard Time': 'VLAT',
+  'Magadan Standard Time': 'MAGT',
+  'Kamchatka Standard Time': 'PETT',
+  'Australian Eastern Time': 'AET',
+  'Australian Eastern Standard Time': 'AEST',
+  'Australian Eastern Daylight Time': 'AEDT',
+  'Australian Central Time': 'ACT',
+  'Australian Central Standard Time': 'ACST',
+  'Australian Central Daylight Time': 'ACDT',
+  'Australian Western Standard Time': 'AWST',
+  'Australian Central Western Standard Time': 'ACWST',
+  'Lord Howe Standard Time': 'LHST',
+  'Lord Howe Daylight Time': 'LHDT',
+  'New Zealand Time': 'NZT',
+  'New Zealand Standard Time': 'NZST',
+  'New Zealand Daylight Time': 'NZDT',
+  'Chatham Time': 'CHAST',
+  'Chatham Standard Time': 'CHAST',
+  'Chatham Daylight Time': 'CHADT',
+  'Norfolk Island Standard Time': 'NFT',
+  'Norfolk Island Daylight Time': 'NFDT',
+  'Christmas Island Time': 'CXT',
+  'Cocos Islands Time': 'CCT',
+  'Fiji Standard Time': 'FJT',
+  'Papua New Guinea Time': 'PGT',
+  'Solomon Islands Time': 'SBT',
+  'Vanuatu Standard Time': 'VUT',
+  'New Caledonia Standard Time': 'NCT',
+  'Chamorro Standard Time': 'CHST',
+  'Palau Time': 'PWT',
+  'Chuuk Time': 'CHUT',
+  'Pohnpei Time': 'PONT',
+  'Kosrae Time': 'KOST',
+  'Marshall Islands Time': 'MHT',
+  'Nauru Time': 'NRT',
+  'Tuvalu Time': 'TVT',
+  'Gilbert Islands Time': 'GILT',
+  'Phoenix Islands Time': 'PHOT',
+  'Line Islands Time': 'LINT',
+  'Tonga Standard Time': 'TOT',
+  'Samoa Standard Time': 'WSST',
+  'American Samoa Standard Time': 'SST',
+  'Tokelau Time': 'TKT',
+  'Wallis & Futuna Time': 'WFT',
+  'Cook Islands Standard Time': 'CKT',
+  'Niue Time': 'NUT',
+  'Tahiti Time': 'TAHT',
+  'Marquesas Time': 'MART',
+  'Gambier Time': 'GAMT',
+  'Pitcairn Time': 'PST',
+  'Galapagos Time': 'GALT',
+  'Easter Island Standard Time': 'EAST',
+  'Easter Island Summer Time': 'EASST',
+  'Davis Time': 'DAVT',
+  'Mawson Time': 'MAWT',
+  'Rothera Time': 'ROTT',
+  'Syowa Time': 'SYOT',
+  'Vostok Time': 'VOST',
+}
+
+const SYNONYMS: Record<string, string> = {
+  'Eastern Time': 'hora del este costa este US Eastern',
+  'Central Time': 'hora del centro US Central',
+  'Mountain Time': 'hora de la montaña US Mountain',
+  'Pacific Time': 'hora del pacífico costa oeste US Pacific',
+  'United Kingdom Time': 'British Time UK Time',
+}
+
+export const TIME_ZONE_ABBREVIATIONS = new Set(Object.values(ABBREVIATIONS).flatMap((value) => value.toLowerCase().split(' ')))
+
+interface ZoneNames {
+  labels: Record<Language, string>
+  searchText: string
+  abbreviations: string[]
+}
+
+const cache = new Map<string, ZoneNames>()
+// Samples discover seasonal *names*, never offsets or conversion rules.
+const samples = [Date.UTC(2026, 0, 15, 12), Date.UTC(2026, 6, 15, 12)]
+
+export function zoneNames(zone: string): ZoneNames {
+  const cached = cache.get(zone)
+  if (cached) return cached
+  const names = { es: new Set<string>(), en: new Set<string>() }
+  const generic = { es: '', en: '' }
+  for (const language of ['es', 'en'] as const) {
+    for (const style of ['longGeneric', 'long'] as const) {
+      const formatter = new Intl.DateTimeFormat(LOCALES[language], { timeZone: zone, timeZoneName: style })
+      for (const instant of samples) {
+        const name = formatter.formatToParts(instant).find((part) => part.type === 'timeZoneName')!.value
+        names[language].add(name)
+        if (style === 'longGeneric' && !generic[language]) generic[language] = name
+      }
+    }
+  }
+  const abbreviations = [...new Set([...names.en].flatMap((name) => ABBREVIATIONS[name]?.split(' ') ?? []))]
+  const suffix = abbreviations.length ? ` (${abbreviations.join(' / ')})` : ''
+  const value = {
+    labels: { es: generic.es + suffix, en: generic.en + suffix },
+    searchText: [...names.es, ...names.en, ...[...names.en].map((name) => SYNONYMS[name] ?? '')].join(' '),
+    abbreviations,
+  }
+  cache.set(zone, value)
+  return value
+}

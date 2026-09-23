@@ -1,0 +1,33 @@
+appId: com.meridiano.desk
+productName: Meridiano Desk App
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**/*
+  - electron-dist/**/*
+  - build/icon.png
+  - package.json
+asar: true
+npmRebuild: false
+publish: null
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+nsis:
+  artifactName: Meridiano-Desk-App-${version}-${arch}-nsis.${ext}
+  oneClick: false
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Meridiano Desk App
+  deleteAppDataOnUninstall: false
+portable:
+  artifactName: Meridiano-Desk-App-${version}-${arch}-portable.${ext}
+  requestExecutionLevel: user

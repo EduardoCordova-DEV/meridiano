@@ -1,111 +1,209 @@
 # Meridiano Desk App
 
-Aplicación Windows independiente con **Electron 44.4.1 + React + TypeScript**.
-Conserva la interfaz de Meridiano, sin backend, cuentas, APIs, telemetría ni recursos
-remotos. Instalada, carga sus archivos empaquetados: no necesita Node, npm, Vite,
-una terminal, un navegador externo ni conexión a Internet.
+**Tus clientes, sus horarios y un mismo instante.**
 
-Este proyecto vive en `C:\Users\ecordova\Projects\meridiano-desk-app`.
-No comparte dependencias, procesos ni almacenamiento con la web. No modifica el
-alias **`meridiano`**, que sigue perteneciendo a la web. Se retiraron de esta copia
-el iniciador web y sus pruebas; no se cambia ningún perfil de PowerShell.
+Meridiano Desk App es un dashboard de relojes mundiales para Windows. Permite
+consultar la hora de distintas ciudades, asociar cada reloj a un cliente o caso
+y convertir un horario de Ciudad de México a todas tus conexiones.
 
-## Abrir en Windows
+Está construido con **Electron, React y TypeScript** y funciona de manera
+**local y sin conexión**. La aplicación distribuida no necesita Node.js, npm,
+una terminal, un navegador externo ni un servidor. No utiliza cuentas, APIs,
+backend, telemetría ni recursos remotos.
 
-Los artefactos se generan en `release`:
+## Qué puedes hacer
 
-| Archivo | Uso |
+| Función | Descripción |
 | --- | --- |
-| `Meridiano-Desk-App-1.0.0-x64-nsis.exe` | Instalador por usuario, con acceso directo en escritorio y menú Inicio. No requiere elevación. |
-| `Meridiano-Desk-App-1.0.0-x64-portable.exe` | Ejecutable sin instalación. Doble clic; no abre una terminal. |
-| `win-unpacked\Meridiano Desk App.exe` | Aplicación desempaquetada. Hay que conservar **toda** la carpeta `win-unpacked`, no solo el EXE. |
+| Reloj de referencia | Ciudad de México (`America/Mexico_City`), independiente de la zona configurada en Windows. |
+| Relojes de clientes | Tarjetas con ciudad, fecha, hora, diferencia respecto a CDMX, etiqueta de cliente y número de caso opcional. |
+| Búsqueda de zonas | Catálogo de 419 zonas IANA y 162 siglas, con búsquedas como `ET`, `Bucarest`, `GMT+2` o `UTC+05:30`. |
+| Conversor | Elige una fecha y hora de CDMX y consulta ese mismo instante en todos los relojes. Respeta horario de verano y desfases fraccionarios. |
+| Comparador | Vista conjunta de horarios para comparar ciudades y elegir un instante común. |
+| Personalización | Español/inglés, formato 12/24 h, modo claro/oscuro, siete paletas —incluida React Theme— y colores personalizados. |
+| Fondos animados | Tierra en la tarjeta principal; sol o luna en cada reloj según su horario local, con controles de pausa. |
+| Respaldo de datos | Importación y exportación JSON de relojes, clientes, casos y preferencias, con validación y confirmación de reemplazo. |
 
-No se instala ni se ejecuta al iniciar Windows. No hay bandeja, actualizador ni
-servicio. Una segunda apertura activa la ventana existente. El nombre del producto
-es **Meridiano Desk App** y su identificador estable es `com.meridiano.desk`.
-El icono Windows se genera a partir del mismo globo de `public\favicon.svg`.
+El proyecto de escritorio es independiente de la versión web: no comparte sus
+dependencias, procesos ni almacenamiento. El alias **`meridiano`** sigue
+perteneciendo a la web; instalar esta app no lo modifica ni añade perfiles de
+PowerShell.
 
-**Firma:** esta distribución local no tiene certificado de firma de código.
-Windows/SmartScreen puede advertir sobre un editor desconocido. No desactives
-SmartScreen, el antivirus ni políticas corporativas; si tu organización bloquea
-ejecutables sin firma, solicita aprobación o una compilación firmada.
-Generar el instalador no lo instala automáticamente.
+## Instalación en Windows
 
-## Ajuste a la pantalla
+### Requisitos para usar la aplicación
+
+- Windows x64. Windows 11 ofrece las esquinas redondeadas nativas; Windows 10 no
+  dispone de ese mismo efecto.
+- Permiso para ejecutar aplicaciones locales en tu cuenta de Windows.
+- Uno de los archivos de distribución indicados abajo.
+
+**No necesitas instalar Node.js ni ejecutar comandos para usar la app.**
+La conexión a Internet solo es necesaria para obtener los archivos o preparar
+el entorno de desarrollo; el dashboard funciona sin ella.
+
+### Archivos disponibles
+
+Los archivos de la versión actual, **1.0.0**, están en la carpeta `release` del
+proyecto:
+
+| Archivo | Cuándo elegirlo |
+| --- | --- |
+| `Meridiano-Desk-App-1.0.0-x64-nsis.exe` | Instalación habitual, con accesos directos en el escritorio y el menú Inicio. |
+| `Meridiano-Desk-App-1.0.0-x64-portable.exe` | Uso sin instalación, mediante un único ejecutable. |
+| `win-unpacked\Meridiano Desk App.exe` | Uso de la distribución desempaquetada; requiere conservar toda su carpeta. |
+
+En esta máquina se encuentran en:
+
+```text
+C:\Users\ecordova\Projects\meridiano-desk-app\release
+```
+
+Si solo tienes el código fuente y `release` todavía no existe, consulta
+[Desarrollo y compilación](#desarrollo-y-compilación).
+
+### Opción A: instalar con el asistente — recomendada
+
+1. Cierra cualquier ventana de Meridiano Desk App que esté abierta.
+2. Ejecuta `Meridiano-Desk-App-1.0.0-x64-nsis.exe` con doble clic.
+3. Sigue el asistente. Si cambias la carpeta de instalación, elige una ubicación
+   donde tu cuenta pueda escribir: la instalación es **por usuario y sin
+   elevación de privilegios**.
+4. Completa la instalación y abre **Meridiano Desk App** desde el escritorio o
+   el menú Inicio.
+
+No es necesario ejecutar `npm run dev`, mantener una terminal abierta ni iniciar
+un servidor. Generar o descargar el instalador no lo instala automáticamente.
+
+### Opción B: usar el portable
+
+1. Guarda `Meridiano-Desk-App-1.0.0-x64-portable.exe` en una carpeta de tu elección.
+2. Cierra cualquier versión anterior de la app.
+3. Abre el archivo con doble clic.
+
+Puedes crear manualmente un acceso directo a ese archivo si lo deseas.
+**Portable significa que no requiere instalación**, no que guarde las
+preferencias junto al ejecutable: usa el perfil local de Windows descrito en
+[Datos y almacenamiento](#datos-y-almacenamiento).
+
+### Opción C: usar la carpeta desempaquetada
+
+Abre `release\win-unpacked\Meridiano Desk App.exe`. Si mueves o compartes esta
+distribución, conserva **toda la carpeta `win-unpacked`**, incluidos sus archivos
+y subcarpetas. Copiar solo el EXE no es suficiente.
+
+### Advertencias de Windows y firma
+
+Esta distribución local **no tiene certificado de firma de código**.
+Windows/SmartScreen puede advertir sobre un editor desconocido. Comprueba la
+procedencia del archivo y respeta las políticas de tu organización.
+
+**No desactives SmartScreen, el antivirus ni las políticas corporativas.** Si la
+ejecución de archivos sin firma está bloqueada, solicita aprobación o una
+distribución firmada.
+
+### Actualizar o desinstalar
+
+Antes de actualizar, exporta una copia desde **Ajustes → Importar / exportar**.
+Cierra la app y ejecuta el nuevo instalador, o sustituye el portable por la nueva
+versión. No hay actualizaciones automáticas.
+
+Instalador, portable y ejecución local con `npm start` comparten el mismo perfil
+y usan una sola instancia: abrir otra copia activa la ventana existente. Para
+ver una versión nueva, primero debes cerrar la anterior.
+
+Para desinstalar la versión instalada, utiliza **Configuración de Windows →
+Aplicaciones**, busca Meridiano Desk App y selecciona desinstalar. La configuración
+del instalador conserva los datos del usuario. Para dejar de usar el portable,
+cierra la app y elimina su ejecutable; esto tampoco elimina el perfil.
+
+No borres el perfil para actualizar. Borrarlo elimina las preferencias locales;
+exporta un respaldo antes de cualquier eliminación deliberada.
+
+## Primeros pasos
+
+1. Pulsa **Añadir reloj**, busca una ciudad, zona o sigla y, si lo necesitas,
+   introduce una etiqueta de cliente y un número de caso.
+2. Usa **Ahora** para seguir la hora actual. En **Convertir horario**, introduce
+   la fecha y hora de CDMX y pulsa **Convertir en todos los relojes**. **Volver a
+   ahora** reanuda el instante actual.
+3. Alterna entre **Tarjetas** y **Comparador**. Cuando las tarjetas no caben en una
+   sola página, usa las flechas de navegación; no se elimina ningún reloj.
+4. Elige idioma, formato y apariencia. En **Ajustes** puedes cambiar la paleta,
+   personalizar colores y exportar un respaldo.
+
+Editar o quitar un reloj afecta únicamente a los datos de esta app. Los casos
+son texto opcional y conservan ceros iniciales; aparecen como un badge en las
+tarjetas y con la etiqueta Caso/Case en el comparador.
+
+## Interfaz y animaciones
+
+### Ventana y tarjetas adaptables
 
 La ventana abre **maximizada en el área útil del monitor**, respetando la barra
-de tareas de Windows. Puedes restaurarla, moverla y redimensionarla. El panel
-distribuye su altura para evitar el scroll general; en ventanas bajas coloca la
-referencia y el conversor a la izquierda y las conexiones a la derecha.
+de tareas. Puedes restaurarla, moverla y redimensionarla. El dashboard distribuye
+su altura para evitar el scroll general; en ventanas bajas coloca la referencia
+y el conversor a la izquierda y las conexiones a la derecha.
 
-La franja superior muestra **Meridiano Desk App** sobre el mismo fondo del
-dashboard, conservando la cabecera original debajo (diseño B). Sigue el modo
-claro/oscuro y las paletas, incluida la vista previa de colores. Puedes arrastrar
-desde esa franja y usar los controles **nativos de Windows** para minimizar,
-maximizar/restaurar y cerrar; no se sustituyen por botones web. Al restaurar,
-Windows 11 aplica las esquinas redondeadas y la sombra del sistema; al maximizar
-o acoplar la ventana, Windows decide su forma. Windows 10 no ofrece este
-redondeado nativo. No se fuerza transparencia ni se simulan esquinas recortando
-contenido.
+La barra superior está integrada en el fondo del dashboard y conserva los
+controles nativos de Windows. Sigue los temas y las paletas. La ventana
+restaurada utiliza el redondeado y la sombra nativos de Windows 11; al maximizar
+o acoplar, Windows decide su forma.
 
-Los relojes se muestran en **páginas de una a cuatro tarjetas**, según el ancho
-disponible. Usan **Flexbox sin crecimiento**, alineadas a la izquierda, con
-**400 × 320 píxeles CSS** por tarjeta, o **400 × 300** si la ventana tiene hasta
-900 píxeles de alto. Todas comparten ancho y alto, tengan o no número de caso,
-y alinean sus pies y bordes inferiores. No se ensanchan por tener menos relojes
-ni al llegar a la última página: el espacio sobrante queda libre. Si un panel
-dispone de menos espacio, se limitan uniformemente a ese espacio y conservan
-el acceso al contenido largo mediante desplazamiento interno.
+Las tarjetas usan **Flexbox sin crecimiento**, alineadas a la izquierda. Su
+tamaño habitual es **400 × 320 píxeles CSS**, o **400 × 300** en ventanas de hasta
+900 píxeles de alto. Todas mantienen las mismas dimensiones y sus pies alineados,
+tengan o no caso. No se estiran para rellenar huecos ni en la última página.
+Si el panel es menor, se ajustan uniformemente al espacio disponible.
 
-Las flechas permiten recorrer todos los clientes y muestran el rango
-y total. Añadir o guardar un reloj lleva a su página; eliminar la última tarjeta
-ajusta la página automáticamente. El paginado no cambia ni recorta tus datos,
-no se guarda en las preferencias y no altera la exportación.
+Se muestran de una a cuatro tarjetas por página, según el ancho. Añadir o guardar
+un reloj revela su página; eliminar la última tarjeta ajusta la página
+automáticamente. La página seleccionada no se guarda ni cambia la exportación.
 
-El comparador y los diálogos conservan desplazamiento **interno** para acceder a
-todos sus datos. Los textos excepcionalmente largos o avisos también pueden
-necesitarlo dentro de su panel. No se ocultan barras a costa de perder contenido.
-El ajuste sin scroll general requiere un área de contenido de al menos
-**760 × 540 píxeles CSS**; por debajo, por ejemplo con zoom muy alto, se conserva
-el flujo desplazable accesible en lugar de comprimir o cortar controles.
+El ajuste sin scroll general requiere al menos **760 × 540 píxeles CSS** de
+contenido. Por debajo se mantiene un flujo desplazable accesible. El comparador,
+los diálogos, los textos excepcionalmente largos y los avisos pueden necesitar
+scroll **interno**: no se ocultan controles para evitar una barra.
 
-## Desarrollo y distribución
+### Tierra, sol y luna
 
-Requiere Node.js **22.12 o posterior**, npm y Windows x64 para la distribución aquí
-configurada. La primera instalación de dependencias y la descarga de herramientas
-de empaquetado necesitan red; la aplicación final no.
+La Tierra utiliza texturas WebP locales y aparece grande y recortada en el lateral
+derecho. Las tarjetas incorporan el diseño cinematográfico de sol y luna, con el
+mismo encuadre: corona solar animada o luna con cráteres, sombra y halo azul.
+Sus texturas son procedurales, generadas localmente y compartidas entre tarjetas.
 
-```powershell
-Set-Location 'C:\Users\ecordova\Projects\meridiano-desk-app'
-npm ci
-npm run dev
-```
+Se muestra el sol de **07:00 a 18:59 de la zona de cada reloj** y la luna el resto
+del día, también al convertir horarios. Es una indicación horaria: **no calcula
+amanecer, puesta de sol ni fase lunar**.
 
-`dev` compila el proceso principal, inicia Vite exclusivamente en
-`http://127.0.0.1:5183/` con `strictPort` y abre una ventana Electron aislada.
-Si el puerto está ocupado, falla sin reutilizarlo ni matar procesos ajenos.
-Cerrar Electron o pulsar Ctrl+C detiene ese desarrollo. Los cambios del frontend
-se actualizan con Vite; para cambios del proceso principal, reinicia el comando.
-Este entorno usa un perfil distinto del escritorio normal.
+Cada tarjeta tiene pausa/reanudación junto a editar y quitar. Pausar el dibujo
+no detiene el reloj. Esa pausa es temporal para la tarjeta montada y no se guarda
+en las preferencias. Las animaciones:
 
-```powershell
-npm run build          # TypeScript, frontend, proceso principal e iconos
-npm start              # Electron con el build local, SIN servidor
-npm run pack           # release\win-unpacked
-npm run dist:win       # Instalador NSIS + portable x64, sin publicación
-```
-
-`npm run dev:renderer` sirve solo el frontend en 5183 para las pruebas del navegador.
-`npm run preview` sirve el build en 4183. Ninguno usa el puerto de la web (5173).
-No se requieren dependencias globales, enlaces simbólicos ni rutas al código web.
-`package-lock.json` fija las dependencias; Electron está fijado a una versión
-estable, no a la etiqueta `latest` que puede apuntar a una versión preliminar.
-La actualización del runtime es manual: cambia la versión, verifica y redistribuye.
+- Se limitan a 24 fps y respetan la opción de reducir movimiento.
+- Se detienen al convertir, ocultar la ventana o salir del viewport.
+- Inicializan los renderers de las tarjetas solo cuando están visibles y los
+  liberan al desmontarlas, por ejemplo al cambiar de página.
+- Muestran un aviso si falla el dibujo, sin impedir usar el reloj ni conservar
+  sus datos.
 
 ## Datos y almacenamiento
 
-El origen empaquetado permanece **`meridiano://app/`**, independiente de la carpeta
-del ejecutable. LocalStorage usa exclusivamente `meridiano.preferences.v1`:
+El origen de la app empaquetada es **`meridiano://app/`**, independiente de la
+carpeta del ejecutable. El perfil normal está en:
+
+```text
+%APPDATA%\meridiano-desk-app
+```
+
+Instalador, portable y `npm start` comparten ese perfil. Desarrollo utiliza
+`%APPDATA%\meridiano-desk-app-dev`; las pruebas crean perfiles temporales propios.
+La app no lee perfiles de Chrome/Edge ni importa automáticamente datos de la web.
+
+Chromium administra LocalStorage dentro del perfil. **No edites sus archivos
+internos**: usa la importación/exportación de la app.
+
+Las preferencias se validan y se guardan en `meridiano.preferences.v1`, versión 1:
 
 ```json
 {
@@ -126,62 +224,58 @@ del ejecutable. LocalStorage usa exclusivamente `meridiano.preferences.v1`:
 }
 ```
 
-`personalization` también se conserva cuando existe, con las paletas por modo.
-Los campos opcionales antiguos pueden faltar. El caso es texto opcional y conserva
-ceros iniciales. Una lista `clocks: []` se conserva, sin regenerar ejemplos.
-No se escribe al montar la aplicación. Los datos inválidos se mantienen intactos,
-con aviso visible, hasta un guardado explícito. Si solo falla una paleta almacenada,
-se recuperan en memoria los demás datos sin sobrescribir el original.
+`personalization` conserva los colores personalizados por modo cuando existe.
+Se admiten preferencias antiguas sin los campos opcionales. Una lista
+`clocks: []` permanece vacía, sin regenerar ejemplos.
 
-El perfil normal está en **`%APPDATA%\meridiano-desk-app`**; Chromium administra
-su LocalStorage dentro de esa carpeta. Instalador, portable y `npm start` comparten
-ese perfil y la misma instancia. *Portable* significa sin instalación: **no**
-significa que guarde los datos junto al EXE o en una memoria USB.
-Desarrollo usa `%APPDATA%\meridiano-desk-app-dev`. Las pruebas usan perfiles
-temporales propios con `--user-data-dir` absoluto; nunca leen perfiles de Edge,
-Chrome ni el perfil normal. No edites los archivos internos de Chromium.
+No se sobrescriben preferencias al montar la app. Los datos inválidos se
+mantienen intactos, con aviso visible, hasta un guardado explícito. Si solo falla
+una paleta, se recuperan en memoria los demás datos sin sobrescribir el original.
+La fecha de conversión no se persiste: cada apertura vuelve a **Ahora**.
 
-Las preferencias no están cifradas por la app. Protege la cuenta de Windows y sus
-copias. Desinstalar conserva los datos por configuración; borrar el perfil elimina
-las preferencias. Exporta una copia antes de hacerlo. La fecha de conversión no se
-persiste: cada apertura vuelve a **Ahora**.
+Las preferencias no están cifradas por la app. Protege tu cuenta de Windows
+y las copias de seguridad. No existe sincronización entre dispositivos ni
+con la web.
 
 ## Importar y exportar
 
-Abre **Ajustes → Importar / exportar** (en inglés, **Settings → Import / export**).
-Esta sección descarta cualquier vista previa de colores que no hayas guardado.
+Abre **Ajustes → Importar / exportar**; en inglés, **Settings → Import / export**.
+Abrir esta sección descarta una vista previa de colores que no hayas guardado.
 
-- **Exportar JSON** solicita guardar solo la configuración mostrada: relojes,
-  clientes, casos, formato, tema, idioma, vista y personalización. Electron muestra
-  un diálogo nativo para elegir el destino. Cancelar no crea una copia.
-- **Importar JSON** lee únicamente el archivo que seleccionas, hasta **5 MiB**.
-  Se valida el esquema completo, incluidos colores, identificadores únicos, zonas
-  y números de caso. JSON inválido o incompatible no cambia los datos.
-- Un archivo válido muestra el número de relojes y exige pulsar
-  **Reemplazar mis preferencias**. Reemplaza todo, no combina listas; incluso una
-  lista vacía requiere confirmación. Puedes cancelar sin escribir.
-- Si falla el guardado de una importación, los datos anteriores y la configuración
-  activa permanecen intactos y se muestra un error.
+**Para exportar:** pulsa **Exportar JSON**, elige el destino en el diálogo nativo
+de Windows y confirma. Se exporta únicamente la configuración mostrada: relojes,
+clientes, casos, formato, tema, idioma, vista y personalización. Cancelar el
+diálogo no crea una copia.
+
+**Para importar:** pulsa **Importar JSON** y selecciona tu archivo, de hasta
+**5 MiB**. La app valida el esquema, colores, identificadores únicos, zonas y
+casos. Si es válido, muestra el número de relojes y pide confirmar con
+**Reemplazar mis preferencias**. El reemplazo es completo, no combina listas;
+una lista vacía también requiere confirmación.
+
+Un archivo inválido o incompatible no cambia los datos. Puedes cancelar antes
+de confirmar. Si falla el guardado, las preferencias anteriores y la
+configuración activa permanecen intactas y se muestra un error.
 
 **Los JSON contienen datos de clientes y números de caso sin cifrar. Guárdalos
 privadamente; no los publiques, adjuntes a incidencias ni subas a repositorios.**
 Si existe un error de lectura, exportar copia lo mostrado, no datos originales
-inaccesibles; la interfaz lo advierte. No existe sincronización automática.
+inaccesibles; la interfaz lo advierte.
 
-### Traer datos de la web existente, sin modificarla
+### Traer datos de la versión web
 
-Hazlo tú, explícitamente, en la pestaña y perfil donde ya usas la web. No hace
-falta editar su código, reiniciar su servidor ni explorar archivos privados.
+Este procedimiento es manual y no modifica la web ni reinicia su servidor.
+Realízalo en la pestaña y el perfil donde ya utilizas Meridiano:
 
 1. Abre exactamente **http://127.0.0.1:5173/** y comprueba que sean tus relojes.
 2. Abre DevTools con F12. En **Application → Local Storage → ese origen**, busca
-   **solo** `meridiano.preferences.v1`. Copia el valor completo (no la clave).
-3. Pégalo en un archivo UTF-8 llamado, por ejemplo, `meridiano-web.json`, en una
-   carpeta privada. No copies otras claves, cookies, credenciales ni perfiles.
-4. En Desk App, importa ese archivo. Revisa el número de relojes y confirma el
-   reemplazo únicamente si es lo que deseas. Conserva la web sin cambios.
+   **solo** `meridiano.preferences.v1` y copia el valor completo, no la clave.
+3. Pega el valor en un archivo UTF-8, por ejemplo `meridiano-web.json`, dentro de
+   una carpeta privada. No copies otras claves, cookies, credenciales ni perfiles.
+4. Importa ese archivo en la Desk App. Revisa el número de relojes y confirma el
+   reemplazo únicamente si es lo que deseas.
 
-Alternativa opt-in desde la consola de DevTools, después de revisar el código:
+Alternativa opcional desde la consola de DevTools, después de revisar el código:
 
 ```javascript
 if (location.origin !== 'http://127.0.0.1:5173') {
@@ -194,114 +288,174 @@ copy(value);
 ```
 
 `copy` es una utilidad de DevTools: copia **esa única clave** al portapapeles.
-No escribe en LocalStorage, no lee cookies y no envía datos a la red. Pega el
-resultado en el archivo privado; considera después limpiar el portapapeles y su
-historial según tus políticas. No eludas las advertencias antipegado de DevTools:
-puedes usar la vía de Application sin ejecutar código.
+No escribe en LocalStorage, no lee cookies y no envía datos a la red. Guarda el
+resultado privadamente y limpia el portapapeles y su historial según tus políticas.
+No eludas las advertencias antipegado de DevTools; puedes utilizar la vía de
+Application sin ejecutar código.
 
-## Funciones conservadas
+## Desarrollo y compilación
 
-Ciudad de México (`America/Mexico_City`) es siempre la referencia, aunque Windows
-use otra zona. `Intl` y Temporal calculan DST y offsets fraccionarios; las siglas
-como ET son alias de búsqueda, no offsets fijos. Se conserva el catálogo de
-**419 zonas IANA y 162 siglas**, con nombres ES/EN, sujeto al soporte del runtime.
-El catálogo geográfico local `src\zone.tab` es IANA tzdb **2026d**; no se descarga
-durante el uso.
+Esta sección es para modificar el código o generar los ejecutables. **No es
+necesaria para utilizar una distribución ya compilada.**
 
-Se conservan tarjetas, comparador, clientes y casos opcionales, formatos 12/24 h,
-ES/EN, claro/oscuro, siete paletas (incluida **React Theme**) y colores personalizados.
-La vista de tarjetas termina en los relojes: se retiraron el acceso duplicado
-«Otra conexión, otro lugar» y la franja inferior de ayuda. Puedes añadir relojes
-desde el botón superior, desde el estado vacío o desde el comparador; el pie de
-privacidad permanece visible.
-Los casos se muestran como badge numérico en las tarjetas; el comparador mantiene
-la etiqueta Caso/Case. No se restaura el antiguo indicador En vivo/Live.
-Ahora sigue actualizando todos los relojes; convertir congela el instante común.
-El conversor admite 1970–2100 y rechaza horas históricas ambiguas o inexistentes
-en CDMX; el comparador distingue las horas repetidas por su desfase UTC.
+### Preparar el entorno
 
-La Tierra realista permanece grande y recortada en el lateral derecho, con
-texturas WebP locales. El giro está limitado a 24 fps; su pausa no detiene los
-relojes. Respeta movimiento reducido, conversión, visibilidad de ventana y
-viewport, y comunica fallos de carga. Es decorativa, no iluminación solar real.
-Se unificó el fondo de la Tierra con el de la tarjeta en modo oscuro para evitar
-el degradado claro y la pérdida de contraste del tema predeterminado.
+Requiere **Node.js 22.12 o posterior**, npm y Windows x64 para los paquetes aquí
+configurados. La instalación de dependencias y la primera descarga de
+herramientas de empaquetado necesitan red.
 
-Las tarjetas de horarios incorporan el sol y la luna del diseño cinematográfico:
-textura solar con corona animada y luna con cráteres, sombra y halo azul. Se
-recortan por arriba y por la derecha como la Tierra, sin cambiar las dimensiones
-de las cards. Sus texturas son procedurales, generadas localmente y compartidas
-entre tarjetas; no añaden dependencias, archivos remotos ni llamadas de red.
+Desde PowerShell, en la ubicación actual del proyecto:
 
-Se muestra el sol de **07:00 a 18:59 de la zona de cada reloj** y la luna el resto
-del día, también al convertir horarios. Es una indicación horaria, no un cálculo
-de amanecer, puesta de sol o fase lunar. Cada tarjeta tiene un botón de
-pausa/reanudación junto a editar y quitar: pausar el dibujo no detiene el reloj.
-La pausa es temporal para esa tarjeta montada, no se guarda en las preferencias.
-Las animaciones se limitan a 24 fps, se detienen al convertir, al ocultar la
-ventana o salir del viewport y respetan movimiento reducido. Las tarjetas fuera
-de vista no inicializan su renderer hasta aparecer; cambiar de página libera los
-renderers anteriores. Los fallos se muestran dentro de la tarjeta, sin impedir
-editar el reloj ni conservar los datos.
+```powershell
+Set-Location 'C:\Users\ecordova\Projects\meridiano-desk-app'
+npm ci
+npm run dev
+```
 
-La precisión depende del reloj de Windows y de las reglas IANA incluidas con
-Electron. No hay sincronización NTP propia. Las franjas laborales del comparador
-son orientativas, no disponibilidad, festivos ni cálculos astronómicos.
+Si copias el proyecto a otra carpeta, adapta la primera ruta. No se necesitan
+dependencias globales, enlaces simbólicos ni referencias de ejecución al proyecto
+web. `package-lock.json` fija las dependencias.
 
-## Seguridad y comprobaciones
+`npm run dev` compila el proceso principal, inicia Vite en
+**http://127.0.0.1:5183/** con `strictPort` y abre Electron con el perfil de
+desarrollo. Si el puerto está ocupado, falla sin reutilizarlo ni terminar procesos
+ajenos. Cerrar Electron o pulsar Ctrl+C detiene ese desarrollo. El frontend se
+actualiza con Vite; los cambios del proceso principal requieren reiniciar el
+comando.
 
-Renderer con `nodeIntegration: false`, `contextIsolation: true`, `sandbox: true`,
-seguridad web activa, sin preload ni IPC. El proceso principal solo sirve recursos
-empaquetados permitidos; no ofrece acceso genérico al filesystem. CSP restringe
-scripts al origen local y prohíbe conexiones, frames y objetos. Se bloquean ventanas
-nuevas, navegación externa, permisos y solicitudes remotas. Solo se permiten las
-exportaciones JSON iniciadas por la app. No se abre contenido remoto privilegiado.
-El color de los controles nativos sigue la etiqueta `theme-color` ya usada por
-el frontend; no necesita exponer nuevas capacidades al renderer.
+### Compilar y ejecutar sin servidor
+
+```powershell
+npm run build
+npm start
+```
+
+`build` comprueba TypeScript y genera el frontend, el proceso principal y los
+iconos. `npm start` abre esos archivos mediante Electron, sin Vite, y utiliza el
+perfil normal de la app.
+
+### Generar la distribución de Windows
+
+```powershell
+npm run pack       # Genera release\win-unpacked
+npm run dist:win   # Genera instalador NSIS y portable x64, sin publicar
+```
+
+Ambos comandos compilan antes de empaquetar. Puedes ejecutar directamente
+`npm run dist:win` si solo necesitas el instalador y el portable. No instala
+la app automáticamente ni publica archivos en un repositorio o servicio.
+
+| Comando adicional | Uso |
+| --- | --- |
+| `npm run dev:renderer` | Frontend de desarrollo en `127.0.0.1:5183`, sin abrir Electron. |
+| `npm run preview` | Vista previa del build frontend en `127.0.0.1:4183`. |
+| `npm run build:electron` | Compila únicamente el proceso principal. |
+| `npm run icons` | Genera los iconos Windows a partir de `public\favicon.svg`. |
+
+El puerto **5173 pertenece a la web existente** y no se utiliza para desarrollo
+o pruebas de escritorio.
+
+### Organización del proyecto
+
+| Ruta | Responsabilidad |
+| --- | --- |
+| `src\App.tsx` | Dashboard, tarjetas, controles y coordinación de las vistas. |
+| `src\time.ts`, `src\zones.ts` | Conversión de horarios y búsqueda de zonas. |
+| `src\storage.ts`, `src\hooks.ts` | Validación, persistencia y estado compartido. |
+| `src\EarthBackdrop.tsx`, `src\earth-renderer.ts` | Tierra animada con texturas locales. |
+| `src\CelestialBackdrop.tsx`, `src\celestial-renderer.ts` | Sol y luna procedurales, pausa y ciclo de renderizado. |
+| `src\styles.css`, `src\palette.ts`, `src\i18n.ts` | Diseño adaptable, paletas y textos ES/EN. |
+| `electron\main.cts` | Ventana nativa, protocolo local y restricciones del renderer. |
+| `scripts\` | Inicio, desarrollo y generación de iconos. |
+| `tests\`, `src\*.test.ts*` | Pruebas del navegador, Electron y componentes/lógica. |
+| `electron-builder.yml` | Configuración del instalador y del portable. |
+| `release\` | Distribuciones generadas; no es el código fuente. |
+
+El producto se identifica como **Meridiano Desk App**, con appId estable
+`com.meridiano.desk`. El runtime actual es **Electron 44.4.1**. Su actualización
+es manual: cambia la versión fijada, verifica la app y genera otra distribución;
+no se utiliza una etiqueta `latest` que pueda resolver a una versión preliminar.
+
+## Pruebas
+
+Desde la raíz del proyecto:
 
 ```powershell
 npm run typecheck
 npm test
-npm run test:e2e       # Edge instalado; solo 5183, sin reutilizar servidores
+npm run test:e2e
 npm run build
-npm run test:electron -- --project electron
+npm run test:electron -- --project=electron
 npm run pack
-npm run test:packaged  # EXE real de win-unpacked, sin devserver
+npm run test:packaged
 ```
 
-Las pruebas nativas lanzan Electron con Playwright `_electron`, verifican el sandbox
-del proceso, ausencia de Node en la ventana, recursos locales, Tierra, sol/luna, conversión
-con Windows emulado en Asia/Tokyo, temas, idioma, casos, comparador, JSON, rechazo
-de importación inválida y persistencia tras cerrar/reabrir, también de listas vacías.
-La exportación usa el manejador nativo real; solo el destino del diálogo se fija
-desde el harness para no requerir interacción humana. No se instala el NSIS
-automáticamente. Capturas y resultados quedan en `test-results`.
-Las pruebas de ajuste redimensionan la ventana nativa, recorren las páginas con
-0, 1, 2, 3 y 30 relojes y comprueban las dimensiones iguales de las tarjetas,
-la alineación de sus pies y los límites de paginación, incluso en la última página.
-El recorrido de tamaños usa movimiento reducido; el smoke nativo y las pruebas
-de navegador comprueban por separado la animación de píxeles, pausa por tarjeta,
-transición día/noche, conversión, errores y preferencias intactas.
-El documento no desborda la ventana, sin ocultar el reloj principal ni perder
-preferencias; los casos largos siguen accesibles dentro de su tarjeta.
-La franja integrada se verifica con las siete paletas en ambos modos, colores
-manuales y cancelación de vista previa. También se comprueban el contraste de los
-controles nativos, la maximización desde el título, minimizar/restaurar y la
-preferencia de esquinas redondeadas de DWM en Windows 11.
+Las pruebas de navegador requieren Edge instalado y arrancan su propio servidor
+en **5183**, sin reutilizar servidores existentes. Las pruebas nativas utilizan
+Playwright `_electron`, perfiles temporales y la app real; `test:packaged` ejecuta
+`release\win-unpacked\Meridiano Desk App.exe` sin devserver.
 
-Las pruebas heredadas del indicador Live se sustituyeron por comprobaciones de
-avance/congelación/reanudación de relojes. Las aserciones de caso respetan la UI
-actual. Los tests no restauran markup eliminado ni acceden a la web existente.
+Se cubren conversión y DST, datos y listas vacías, casos, paletas, idiomas,
+importación/exportación, accesibilidad, aislamiento de Node, funcionamiento
+offline, animación, pausa y errores visibles. Las comprobaciones de ventana
+recorren seis tamaños y páginas con 0, 1, 2, 3 y 30 relojes, sin alterar sus
+preferencias. El barrido geométrico usa movimiento reducido; otras pruebas
+comprueban los píxeles animados y que pausar el dibujo no detenga los relojes.
+
+El diálogo de exportación usa el manejador nativo; solo su destino se fija desde
+las pruebas para evitar interacción humana. No se instala el NSIS automáticamente
+ni se accede a la web existente. Los resultados y capturas quedan en
+`test-results`.
+
+## Seguridad y límites
+
+El renderer utiliza `nodeIntegration: false`, `contextIsolation: true`,
+`sandbox: true` y seguridad web activa, sin preload ni IPC. El proceso principal
+solo sirve archivos empaquetados permitidos; no expone acceso genérico al
+filesystem. La CSP restringe scripts al origen local y prohíbe conexiones,
+frames y objetos. Se bloquean navegación externa, ventanas nuevas, permisos y
+solicitudes remotas. Las descargas permitidas son las exportaciones JSON iniciadas
+por la app.
+
+No hay bandeja, autoarranque, servicio ni actualizador. Los colores de los
+controles nativos siguen la etiqueta `theme-color`, sin exponer capacidades
+adicionales al renderer.
+
+El conversor admite **1970–2100** y rechaza horas históricas ambiguas o
+inexistentes en CDMX; el comparador distingue las horas repetidas por su desfase
+UTC. La precisión depende del reloj de Windows y de las reglas IANA incluidas
+con Electron. No hay sincronización NTP propia. El catálogo geográfico local
+`src\zone.tab` corresponde a IANA tzdb **2026d** y no se descarga durante el uso.
+Las siglas como ET son alias de búsqueda, no desfases fijos.
+
+Las franjas laborales del comparador son orientativas: no representan
+disponibilidad real, festivos ni cálculos astronómicos.
+
+## Solución de problemas
+
+| Situación | Qué hacer |
+| --- | --- |
+| Windows bloquea el archivo por editor desconocido | Consulta el apartado de firma y las políticas de tu organización. No desactives las protecciones. |
+| Se abre una ventana con el diseño anterior | Cierra la instancia anterior antes de abrir el ejecutable actualizado. La app mantiene una sola instancia. |
+| No aparecen los datos de la web | Es un almacenamiento separado. Utiliza la migración manual mediante JSON. |
+| La distribución desempaquetada no abre | Conserva toda la carpeta `win-unpacked`; no muevas únicamente el EXE. |
+| Aparece un aviso de preferencias inválidas | No borres el perfil como primer paso. El original se conserva; revisa el aviso y utiliza un respaldo válido para importar. |
+| El sol, la luna o la Tierra no se mueven | Revisa su pausa, la opción de reducir movimiento y si estás convirtiendo un horario. Esos estados detienen el dibujo, no los relojes. |
+| Hay scroll en un diálogo o en el comparador | Es intencional para mantener accesibles todos los datos. En ventanas muy pequeñas también se permite scroll general. |
+| Desarrollo no inicia porque 5183 está ocupado | Identifica qué proceso usa el puerto. No cierres procesos ajenos ni reutilices el servidor web de 5173. |
+| El empaquetador espera porque un EXE está bloqueado | Cierra únicamente tu copia de ese ejecutable y espera a que termine cualquier análisis de seguridad. No desactives el antivirus. |
 
 ## Licencias
 
 Las texturas de la Tierra proceden de los ejemplos de
 [three-globe](https://github.com/vasturiano/three-globe) y
 [globe.gl](https://github.com/vasturiano/globe.gl); se conserva su licencia MIT en
-`public\earth-textures.LICENSE.txt` y en el build. `src\zone.tab` conserva el aviso
-de dominio público de IANA. Electron/Chromium incluyen sus avisos en la distribución
-(`LICENSE.electron.txt` y `LICENSES.chromium.html`). React, Temporal y las otras
-dependencias conservan sus licencias de paquete dentro de la distribución.
+`public\earth-textures.LICENSE.txt` y en el build. El sol y la luna se generan
+proceduralmente con el código del proyecto, sin texturas descargadas.
+
+`src\zone.tab` conserva el aviso de dominio público de IANA. Electron/Chromium
+incluyen sus avisos en la distribución (`LICENSE.electron.txt` y
+`LICENSES.chromium.html`). React, Temporal y las otras dependencias conservan
+sus licencias de paquete dentro de la distribución.
+
 Los enlaces de esta documentación son referencias; la app no los consulta.
-#   m e r i d i a n o  
- 
