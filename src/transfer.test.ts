@@ -4,10 +4,10 @@ import { defaultPreferences } from './storage'
 import { PRESETS } from './palette'
 
 describe('transferencia JSON', () => {
-  it('exporta e importa el esquema existente sin perder campos ni ceros iniciales', () => {
+  it.each(['react', 'xbox25'] as const)('exporta e importa %s sin perder campos ni ceros iniciales', (id) => {
     const preferences = {
       ...defaultPreferences(), theme: 'dark' as const, language: 'en' as const,
-      palettePreset: 'react' as const, personalization: PRESETS.react, clockView: 'timeline' as const,
+      palettePreset: id, personalization: PRESETS[id], clockView: 'timeline' as const,
       clocks: [{ id: 'case', zone: 'Asia/Kathmandu', label: 'Cliente privado', caseNumber: '00042' }],
     }
     expect(parseTransfer(serializeTransfer(preferences))).toEqual(preferences)

@@ -2,7 +2,7 @@ import type { Palette, Personalization, Theme } from './types'
 
 export const PALETTE_KEYS = ['background', 'surface', 'text', 'muted', 'accent', 'hero', 'border', 'highlight', 'danger'] as const
 export type PaletteKey = typeof PALETTE_KEYS[number]
-export const PRESET_IDS = ['meridiano', 'ocean', 'orchid', 'sunset', 'slate', 'rose', 'react'] as const
+export const PRESET_IDS = ['meridiano', 'ocean', 'orchid', 'sunset', 'slate', 'rose', 'react', 'xbox25'] as const
 export type PresetId = typeof PRESET_IDS[number]
 export type PalettePreset = PresetId | 'custom'
 
@@ -34,6 +34,10 @@ export const PRESETS: Record<PresetId, Record<Theme, Palette>> = {
   react: {
     light: { background: '#f6f7f9', surface: '#ffffff', text: '#23272f', muted: '#5e687e', accent: '#149eca', hero: '#23272f', border: '#e5e7eb', highlight: '#087ea4', danger: '#c02d28' },
     dark: { background: '#23272f', surface: '#343a46', text: '#f6f7f9', muted: '#99a1b3', accent: '#58c4dc', hero: '#1b1f27', border: '#4b5263', highlight: '#58c4dc', danger: '#ff8b7b' },
+  },
+  xbox25: {
+    light: { background: '#eef2ed', surface: '#ffffff', text: '#172416', muted: '#52634f', accent: '#107c10', hero: '#102b10', border: '#cbd7c7', highlight: '#426e27', danger: '#b32637' },
+    dark: { background: '#090e0a', surface: '#161e17', text: '#f0f4ee', muted: '#a8b5a5', accent: '#9bf00b', hero: '#102b10', border: '#344331', highlight: '#c7d4c1', danger: '#ff9e9e' },
   },
 }
 

@@ -17,9 +17,9 @@ const readSaved = () => parsePreferences(window.localStorage.getItem(STORAGE_KEY
 const pageColor = () => document.documentElement.style.getPropertyValue('--p-page')
 
 describe('personalización', () => {
-  it.each([
+  it.each((['react', 'xbox25'] as const).flatMap((id) => ([
     ['es', 'light'], ['es', 'dark'], ['en', 'light'], ['en', 'dark'],
-  ] as const)('ofrece y conserva React Theme en %s, modo %s, sin cambiar preferencias existentes', (language, theme) => {
+  ] as const).map(([language, theme]) => ({ id, language, theme }))))('ofrece y conserva $id en $language, modo $theme, sin cambiar preferencias existentes', ({ id, language, theme }) => {
     const original = { ...defaultPreferences(), language, theme, personalization: { light: PRESETS.ocean.light, dark: PRESETS.rose.dark } }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(original))
     const write = vi.spyOn(Storage.prototype, 'setItem')
@@ -29,23 +29,23 @@ describe('personalización', () => {
     expect(write).not.toHaveBeenCalled()
     fireEvent.click(screen.getByRole('button', { name: t.settings }))
     const dialog = within(screen.getByRole('dialog', { name: t.personalization }))
-    fireEvent.click(dialog.getByRole('button', { name: 'React Theme' }))
-    expect(pageColor()).toBe(PRESETS.react[theme].background)
+    fireEvent.click(dialog.getByRole('button', { name: t.presetNames[id] }))
+    expect(pageColor()).toBe(PRESETS[id][theme].background)
     expect(write).not.toHaveBeenCalled()
     const opposite = theme === 'light' ? 'dark' : 'light'
     fireEvent.click(dialog.getByRole('button', { name: opposite === 'dark' ? t.darkMode : t.lightMode }))
-    expect(dialog.getByRole('button', { name: 'React Theme' })).toHaveAttribute('aria-pressed', 'true')
-    expect(pageColor()).toBe(PRESETS.react[opposite].background)
+    expect(dialog.getByRole('button', { name: t.presetNames[id] })).toHaveAttribute('aria-pressed', 'true')
+    expect(pageColor()).toBe(PRESETS[id][opposite].background)
     fireEvent.click(dialog.getByRole('button', { name: t.saveChanges }))
-    expect(readSaved()).toEqual({ ...original, personalization: PRESETS.react, palettePreset: 'react' })
+    expect(readSaved()).toEqual({ ...original, personalization: PRESETS[id], palettePreset: id })
     fireEvent.click(screen.getByRole('button', { name: theme === 'dark' ? t.switchToLight : t.switchToDark }))
-    expect(pageColor()).toBe(PRESETS.react[opposite].background)
+    expect(pageColor()).toBe(PRESETS[id][opposite].background)
     fireEvent.click(screen.getByRole('button', { name: theme === 'dark' ? t.switchToDark : t.switchToLight }))
     first.unmount()
     render(<App />)
-    expect(pageColor()).toBe(PRESETS.react[theme].background)
+    expect(pageColor()).toBe(PRESETS[id][theme].background)
     fireEvent.click(screen.getByRole('button', { name: t.settings }))
-    expect(screen.getByRole('button', { name: 'React Theme' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: t.presetNames[id] })).toHaveAttribute('aria-pressed', 'true')
   })
 
   it.each(PRESET_IDS)('conserva la paleta %s al alternar oscuro/claro en ambos sentidos', (id) => {

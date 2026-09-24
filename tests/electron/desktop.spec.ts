@@ -9,7 +9,7 @@ const imported = {
   version: 1, clocks: [
     { id: 'client-et', zone: 'America/New_York', label: 'Cliente ET', caseNumber: '00042' },
     { id: 'client-nepal', zone: 'Asia/Kathmandu', label: 'Cliente Nepal' },
-  ], hourCycle: '24', theme: 'dark', language: 'es', palettePreset: 'react', personalization: PRESETS.react, clockView: 'cards',
+  ], hourCycle: '24', theme: 'dark', language: 'es', palettePreset: 'xbox25', personalization: PRESETS.xbox25, clockView: 'cards',
 }
 
 async function transfer(page: Page) {
@@ -33,7 +33,7 @@ test('ventana nativa offline: aislamiento, conversión, datos, exportación y re
   let app: ElectronApplication | undefined
   async function launch() {
     app = await electron.launch({
-      ...(packaged ? { executablePath: resolve('release', 'win-unpacked', 'Meridiano Desk App.exe') } : {}),
+      ...(packaged ? { executablePath: resolve(process.env.MERIDIANO_PACKAGED_EXECUTABLE ?? 'release\\win-unpacked\\Meridiano Desk App.exe') } : {}),
       args: [...(packaged ? [] : ['.']), `--user-data-dir=${profile}`],
       env,
     })
@@ -45,6 +45,7 @@ test('ventana nativa offline: aislamiento, conversión, datos, exportación y re
       })
     })
     const page = await app.firstWindow()
+    await page.clock.install({ time: new Date('2026-09-23T06:24:00Z') })
     await page.getByRole('heading', { level: 1 }).waitFor()
     await expect(page.locator('.earth-sphere canvas')).toHaveAttribute('data-state', 'ready')
     await app.context().setOffline(true)
@@ -116,15 +117,17 @@ test('ventana nativa offline: aislamiento, conversión, datos, exportación y re
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
     await expect(page.locator('.case-badge')).toHaveText('00042')
     await expect(page.locator('.clock-card .case-label')).toHaveCount(0)
-    const celestial = page.locator('.clock-card').first().locator('.celestial-sphere canvas')
-    await expect(celestial).toHaveAttribute('data-state', 'ready')
-    const originalPixels = await celestial.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL())
-    await expect.poll(() => celestial.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL())).not.toBe(originalPixels)
-    await page.locator('.clock-card').first().getByRole('button', { name: 'Pausar animación de esta tarjeta' }).click()
-    const pausedPixels = await celestial.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL())
+    await expect(page.locator('.clock-card .day-icon')).toHaveCount(0)
+    expect(await page.locator('html').evaluate((element) => getComputedStyle(element).getPropertyValue('--p-page').trim())).toBe(PRESETS.xbox25.dark.background)
+    const nightImage = page.locator('.clock-card').first().locator('.nighttime-backdrop img')
+    await expect(nightImage).toHaveAttribute('data-state', 'ready')
+    expect(await nightImage.evaluate((image: HTMLImageElement) => ({
+      loaded: image.complete && image.naturalWidth === 1200 && image.naturalHeight === 800,
+      local: new URL(image.currentSrc).origin === location.origin,
+    }))).toEqual({ loaded: true, local: true })
+    await expect(page.locator('.clock-card canvas, .celestial-toggle')).toHaveCount(0)
     const runningClock = await page.locator('.clock-card').first().locator('.time-display').textContent()
     await expect.poll(() => page.locator('.clock-card').first().locator('.time-display').textContent()).not.toBe(runningClock)
-    expect(await celestial.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL())).toBe(pausedPixels)
     await page.getByRole('button', { name: 'Convertir horario', exact: true }).click()
     await page.getByLabel('Fecha en CDMX').fill('2026-07-15')
     await page.getByLabel('Hora en CDMX (24 h)').fill('09:00')
@@ -132,9 +135,15 @@ test('ventana nativa offline: aislamiento, conversión, datos, exportación y re
     await expect(page.getByRole('timer')).toHaveText('09:00:00')
     await expect(page.getByRole('article', { name: 'Reloj de Nueva York, Cliente ET' })).toContainText('11:00')
     await expect(page.getByRole('article', { name: 'Reloj de Katmandú, Cliente Nepal' })).toContainText('20:45')
-    await expect(page.getByRole('article', { name: 'Reloj de Nueva York, Cliente ET' }).locator('canvas')).toHaveAttribute('data-kind', 'sun')
-    await expect(page.getByRole('article', { name: 'Reloj de Katmandú, Cliente Nepal' }).locator('canvas')).toHaveAttribute('data-kind', 'moon')
-    await expect(page.getByRole('article', { name: 'Reloj de Katmandú, Cliente Nepal' }).locator('canvas')).toHaveAttribute('data-state', 'ready')
+    const daytime = page.getByRole('article', { name: 'Reloj de Nueva York, Cliente ET' })
+    const image = daytime.locator('.daylight-backdrop img')
+    await expect(image).toHaveAttribute('data-state', 'ready')
+    expect(await image.evaluate((image: HTMLImageElement) => ({
+      loaded: image.complete && image.naturalWidth === 755,
+      local: new URL(image.currentSrc).origin === location.origin,
+    }))).toEqual({ loaded: true, local: true })
+    await expect(daytime.locator('canvas, .celestial-toggle')).toHaveCount(0)
+    await expect(page.getByRole('article', { name: 'Reloj de Katmandú, Cliente Nepal' }).locator('.nighttime-backdrop img')).toHaveAttribute('data-state', 'ready')
     await page.screenshot({ path: testInfo.outputPath('celestial-cards.png'), fullPage: true })
     await page.getByLabel('Fecha en CDMX').fill('2026-01-15')
     await page.getByRole('button', { name: 'Convertir en todos los relojes' }).click()
@@ -147,6 +156,7 @@ test('ventana nativa offline: aislamiento, conversión, datos, exportación y re
     await expect(page.locator('.add-clock-card, .help-strip')).toHaveCount(0)
     await page.getByRole('button', { name: 'Switch to light mode' }).click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    expect(await page.locator('html').evaluate((element) => getComputedStyle(element).getPropertyValue('--p-page').trim())).toBe(PRESETS.xbox25.light.background)
     await page.screenshot({ path: testInfo.outputPath('desktop.png'), fullPage: true })
     const saved = await page.evaluate((key) => localStorage.getItem(key), key)
     await app!.close()

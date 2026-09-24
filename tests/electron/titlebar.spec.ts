@@ -14,7 +14,7 @@ test('título integrado: controles nativos, paletas y esquinas de Windows', asyn
   delete env.ELECTRON_RUN_AS_NODE
   const packaged = testInfo.project.name === 'packaged'
   const app = await electron.launch({
-    ...(packaged ? { executablePath: resolve('release', 'win-unpacked', 'Meridiano Desk App.exe') } : {}),
+    ...(packaged ? { executablePath: resolve(process.env.MERIDIANO_PACKAGED_EXECUTABLE ?? 'release\\win-unpacked\\Meridiano Desk App.exe') } : {}),
     args: [...(packaged ? [] : ['.']), `--user-data-dir=${profile}`], env,
   })
   try {
@@ -49,15 +49,19 @@ test('título integrado: controles nativos, paletas y esquinas de Windows', asyn
       }
     }
     await page.getByRole('button', { name: 'Ajustes', exact: true }).click()
+    await page.getByRole('button', { name: 'Xbox 25 aniversario', exact: true }).click()
+    await page.getByRole('button', { name: 'Guardar cambios', exact: true }).click()
+    await expect.poll(nativeColor).toBe(PRESETS.xbox25.light.background)
+    await page.getByRole('button', { name: 'Ajustes', exact: true }).click()
     await page.getByRole('button', { name: 'Pizarra', exact: true }).click()
     await expect.poll(nativeColor).toBe(PRESETS.slate.light.background)
     await page.getByLabel('Fondo del dashboard HEX', { exact: true }).fill('#123456')
     await expect.poll(nativeColor).toBe('#123456')
     expect(contrastRatio((await colors.evaluate((calls) => calls.at(-1)!)).symbolColor!, '#123456')).toBeGreaterThanOrEqual(4.5)
     await page.getByRole('button', { name: 'Cancelar', exact: true }).click()
-    await expect.poll(nativeColor).toBe(PRESETS.react.light.background)
+    await expect.poll(nativeColor).toBe(PRESETS.xbox25.light.background)
     await page.getByRole('button', { name: 'Cambiar a modo oscuro' }).click()
-    await expect.poll(nativeColor).toBe(PRESETS.react.dark.background)
+    await expect.poll(nativeColor).toBe(PRESETS.xbox25.dark.background)
 
     await window.evaluate((window) => window.unmaximize())
     await expect.poll(() => window.evaluate((window) => window.isMaximized())).toBe(false)

@@ -20,14 +20,14 @@ backend, telemetría ni recursos remotos.
 | Búsqueda de zonas | Catálogo de 419 zonas IANA y 162 siglas, con búsquedas como `ET`, `Bucarest`, `GMT+2` o `UTC+05:30`. |
 | Conversor | Elige una fecha y hora de CDMX y consulta ese mismo instante en todos los relojes. Respeta horario de verano y desfases fraccionarios. |
 | Comparador | Vista conjunta de horarios para comparar ciudades y elegir un instante común. |
-| Personalización | Español/inglés, formato 12/24 h, modo claro/oscuro, siete paletas —incluida React Theme— y colores personalizados. |
-| Fondos animados | Tierra en la tarjeta principal; sol o luna en cada reloj según su horario local, con controles de pausa. |
+| Personalización | Español/inglés, formato 12/24 h, modo claro/oscuro, ocho paletas —incluidas React Theme y Xbox 25 aniversario— y colores personalizados. |
+| Fondos de los relojes | Tierra animada en la tarjeta principal; imágenes urbanas de día y de noche según la hora local de cada tarjeta. |
 | Respaldo de datos | Importación y exportación JSON de relojes, clientes, casos y preferencias, con validación y confirmación de reemplazo. |
 
 El proyecto de escritorio es independiente de la versión web: no comparte sus
-dependencias, procesos ni almacenamiento. El alias **`meridiano`** sigue
-perteneciendo a la web; instalar esta app no lo modifica ni añade perfiles de
-PowerShell.
+dependencias, procesos ni almacenamiento. En este equipo, el alias
+**`meridiano`** de Windows PowerShell abre la Desk App empaquetada, sin iniciar
+el servidor web. El instalador por sí solo no crea alias ni modifica perfiles.
 
 ## Instalación en Windows
 
@@ -92,6 +92,30 @@ Abre `release\win-unpacked\Meridiano Desk App.exe`. Si mueves o compartes esta
 distribución, conserva **toda la carpeta `win-unpacked`**, incluidos sus archivos
 y subcarpetas. Copiar solo el EXE no es suficiente.
 
+### Abrir desde la terminal
+
+En este equipo, el alias está configurado en el perfil de usuario de Windows
+PowerShell (`$PROFILE.CurrentUserAllHosts`). Abre una nueva terminal y ejecuta:
+
+```powershell
+meridiano
+```
+
+Si quieres usarlo en una terminal que ya estaba abierta, recarga primero ese
+perfil:
+
+```powershell
+. $PROFILE.CurrentUserAllHosts
+meridiano
+```
+
+El alias apunta a
+`C:\Users\ecordova\Projects\meridiano-desk-app\release\win-unpacked\Meridiano Desk App.exe`.
+No ejecuta npm ni necesita un servidor. Si la app ya está abierta, activa su
+ventana existente. Si mueves el proyecto, actualiza la ruta en el perfil.
+Esta configuración es local: no se añade automáticamente al instalar la app
+en otro equipo.
+
 ### Advertencias de Windows y firma
 
 Esta distribución local **no tiene certificado de firma de código**.
@@ -136,6 +160,13 @@ Editar o quitar un reloj afecta únicamente a los datos de esta app. Los casos
 son texto opcional y conservan ceros iniciales; aparecen como un badge en las
 tarjetas y con la etiqueta Caso/Case en el comparador.
 
+Para activar **Xbox 25 aniversario**, abre **Ajustes**, selecciona esa paleta y
+pulsa **Guardar cambios**. Incluye una variante oscura de negro obsidiana con
+verde eléctrico y detalles plateados, y otra clara de plata con verde profundo.
+Es una propuesta original inspirada en Xbox, no un tema oficial. Añadir esta
+paleta no reemplaza tu selección anterior ni modifica tus relojes; ambas variantes
+se conservan al exportar/importar preferencias.
+
 ## Interfaz y animaciones
 
 ### Ventana y tarjetas adaptables
@@ -150,42 +181,58 @@ controles nativos de Windows. Sigue los temas y las paletas. La ventana
 restaurada utiliza el redondeado y la sombra nativos de Windows 11; al maximizar
 o acoplar, Windows decide su forma.
 
-Las tarjetas usan **Flexbox sin crecimiento**, alineadas a la izquierda. Su
-tamaño habitual es **400 × 320 píxeles CSS**, o **400 × 300** en ventanas de hasta
-900 píxeles de alto. Todas mantienen las mismas dimensiones y sus pies alineados,
-tengan o no caso. No se estiran para rellenar huecos ni en la última página.
-Si el panel es menor, se ajustan uniformemente al espacio disponible.
+Las tarjetas usan **Flexbox sin crecimiento horizontal**, alineadas a la
+izquierda. Su ancho habitual es **400 píxeles CSS**, con una altura mínima de
+**320 píxeles**, o **300** en ventanas de hasta 900 píxeles de alto. Si un texto
+necesita más espacio, toda la fila adopta la altura de la tarjeta más alta:
+**no hay scroll dentro de las tarjetas ni se recorta información**. Mantienen
+el mismo tamaño en cada fila y sus pies alineados, tengan o no caso. No se
+ensanchan para rellenar huecos ni en la última página. En paneles estrechos se
+reduce el ancho, no la altura necesaria para leer el contenido. La paginación
+solo ocupa espacio cuando hay más de una página.
+
+Las tarjetas priorizan la lectura: ciudad de 22–24 píxeles, hora de 46–52 y datos
+secundarios de al menos 12. El caso comparte la fila superior con los controles
+para aprovechar el espacio. Los pequeños iconos diurno/nocturno se han retirado;
+el estado sigue disponible para lectores de pantalla y en el fondo diurno o nocturno.
+Se conservan edición y eliminación; las imágenes estáticas no necesitan pausa.
 
 Se muestran de una a cuatro tarjetas por página, según el ancho. Añadir o guardar
 un reloj revela su página; eliminar la última tarjeta ajusta la página
 automáticamente. La página seleccionada no se guarda ni cambia la exportación.
 
-El ajuste sin scroll general requiere al menos **760 × 540 píxeles CSS** de
-contenido. Por debajo se mantiene un flujo desplazable accesible. El comparador,
-los diálogos, los textos excepcionalmente largos y los avisos pueden necesitar
-scroll **interno**: no se ocultan controles para evitar una barra.
+El ajuste habitual sin scroll general requiere al menos **760 × 540 píxeles
+CSS** de contenido. En tamaños menores, o si textos excepcionalmente largos y
+avisos superan la altura disponible, se desplaza la página, nunca el interior
+de una tarjeta. El comparador y los diálogos conservan su scroll **interno**
+para mantener accesibles sus controles y datos.
 
-### Tierra, sol y luna
+### Tierra e imágenes de día y noche
 
 La Tierra utiliza texturas WebP locales y aparece grande y recortada en el lateral
-derecho. Las tarjetas incorporan el diseño cinematográfico de sol y luna, con el
-mismo encuadre: corona solar animada o luna con cráteres, sombra y halo azul.
-Sus texturas son procedurales, generadas localmente y compartidas entre tarjetas.
+derecho. Las tarjetas utilizan las dos imágenes urbanas proporcionadas por el
+usuario: `src\assets\daylight-city.webp` (~134 KiB) para el día y
+`src\assets\nighttime-city.webp` (~392 KiB) para la noche. Cubren la tarjeta sin
+deformarse, con un degradado del tema para mantener legibles los datos. El encuadre
+nocturno favorece el edificio iluminado a la derecha. Ambas son estáticas:
+no ejecutan animaciones ni muestran un control de pausa.
 
-Se muestra el sol de **07:00 a 18:59 de la zona de cada reloj** y la luna el resto
-del día, también al convertir horarios. Es una indicación horaria: **no calcula
-amanecer, puesta de sol ni fase lunar**.
+Se muestra la imagen diurna de **07:00 a 18:59 de la zona de cada reloj** y la
+nocturna de **19:00 a 06:59**, también al convertir horarios. Las mismas imágenes
+decorativas se usan para todas las ciudades: no representan su ubicación ni el tiempo actual.
+Es una indicación horaria: **no calcula amanecer, puesta de sol ni fase lunar**.
 
-Cada tarjeta tiene pausa/reanudación junto a editar y quitar. Pausar el dibujo
-no detiene el reloj. Esa pausa es temporal para la tarjeta montada y no se guarda
-en las preferencias. Las animaciones:
+La Tierra conserva su control de pausa/reanudación. Pausarla no detiene los
+relojes. Esa pausa es temporal y no se guarda en las preferencias. Su animación:
 
-- Se limitan a 24 fps y respetan la opción de reducir movimiento.
-- Se detienen al convertir, ocultar la ventana o salir del viewport.
-- Inicializan los renderers de las tarjetas solo cuando están visibles y los
-  liberan al desmontarlas, por ejemplo al cambiar de página.
-- Muestran un aviso si falla el dibujo, sin impedir usar el reloj ni conservar
-  sus datos.
+- Se limita a 24 fps y respeta la opción de reducir movimiento.
+- Se detiene al convertir, ocultar la ventana o salir del viewport.
+- Libera sus recursos al desmontarse.
+- Muestra un aviso si falla el dibujo, sin impedir usar el reloj ni conservar sus datos.
+
+Las imágenes de las tarjetas se cargan cuando están próximas a ser visibles.
+Si una imagen no se puede cargar, se conserva el fondo del tema y aparece un
+aviso visible de día o noche. No se descarga ningún fondo de Internet.
 
 ## Datos y almacenamiento
 
@@ -345,6 +392,19 @@ Ambos comandos compilan antes de empaquetar. Puedes ejecutar directamente
 `npm run dist:win` si solo necesitas el instalador y el portable. No instala
 la app automáticamente ni publica archivos en un repositorio o servicio.
 
+Si `release\win-unpacked` está en uso, cierra la app antes de reemplazarla o genera
+la actualización por separado sin interrumpir la ventana abierta:
+
+```powershell
+npm run dist:win -- --config.directories.output=release\nighttime-update
+```
+
+En ese caso, los ejecutables nuevos quedan en `release\nighttime-update`. El
+alias `meridiano` sigue apuntando a la distribución habitual y no cambia por
+generar esa carpeta. Cierra la versión anterior antes de abrir la nueva: ambas
+comparten perfil e instancia única. Para renovar la distribución habitual
+cuando esté cerrada, ejecuta `npm run dist:win` sin el destino alternativo.
+
 | Comando adicional | Uso |
 | --- | --- |
 | `npm run dev:renderer` | Frontend de desarrollo en `127.0.0.1:5183`, sin abrir Electron. |
@@ -363,7 +423,7 @@ o pruebas de escritorio.
 | `src\time.ts`, `src\zones.ts` | Conversión de horarios y búsqueda de zonas. |
 | `src\storage.ts`, `src\hooks.ts` | Validación, persistencia y estado compartido. |
 | `src\EarthBackdrop.tsx`, `src\earth-renderer.ts` | Tierra animada con texturas locales. |
-| `src\CelestialBackdrop.tsx`, `src\celestial-renderer.ts` | Sol y luna procedurales, pausa y ciclo de renderizado. |
+| `src\CelestialBackdrop.tsx`, `src\assets\` | Fondos locales de día y noche, carga de imágenes y avisos de error. |
 | `src\styles.css`, `src\palette.ts`, `src\i18n.ts` | Diseño adaptable, paletas y textos ES/EN. |
 | `electron\main.cts` | Ventana nativa, protocolo local y restricciones del renderer. |
 | `scripts\` | Inicio, desarrollo y generación de iconos. |
@@ -395,12 +455,21 @@ en **5183**, sin reutilizar servidores existentes. Las pruebas nativas utilizan
 Playwright `_electron`, perfiles temporales y la app real; `test:packaged` ejecuta
 `release\win-unpacked\Meridiano Desk App.exe` sin devserver.
 
+Para probar una distribución generada en otra carpeta, indica su ejecutable
+solo para ese proceso de pruebas:
+
+```powershell
+$env:MERIDIANO_PACKAGED_EXECUTABLE = (Resolve-Path '.\release\nighttime-update\win-unpacked\Meridiano Desk App.exe').Path
+try { npm run test:packaged } finally { Remove-Item Env:MERIDIANO_PACKAGED_EXECUTABLE }
+```
+
 Se cubren conversión y DST, datos y listas vacías, casos, paletas, idiomas,
 importación/exportación, accesibilidad, aislamiento de Node, funcionamiento
 offline, animación, pausa y errores visibles. Las comprobaciones de ventana
 recorren seis tamaños y páginas con 0, 1, 2, 3 y 30 relojes, sin alterar sus
 preferencias. El barrido geométrico usa movimiento reducido; otras pruebas
-comprueban los píxeles animados y que pausar el dibujo no detenga los relojes.
+comprueban los fondos locales, los cambios de día/noche y que pausar la Tierra
+no detenga los relojes.
 
 El diálogo de exportación usa el manejador nativo; solo su destino se fija desde
 las pruebas para evitar interacción humana. No se instala el NSIS automáticamente
@@ -440,7 +509,7 @@ disponibilidad real, festivos ni cálculos astronómicos.
 | No aparecen los datos de la web | Es un almacenamiento separado. Utiliza la migración manual mediante JSON. |
 | La distribución desempaquetada no abre | Conserva toda la carpeta `win-unpacked`; no muevas únicamente el EXE. |
 | Aparece un aviso de preferencias inválidas | No borres el perfil como primer paso. El original se conserva; revisa el aviso y utiliza un respaldo válido para importar. |
-| El sol, la luna o la Tierra no se mueven | Revisa su pausa, la opción de reducir movimiento y si estás convirtiendo un horario. Esos estados detienen el dibujo, no los relojes. |
+| La Tierra no se mueve | Revisa su pausa, la opción de reducir movimiento y si estás convirtiendo un horario. Los fondos de las tarjetas son siempre estáticos. Ninguno de esos estados detiene los relojes. |
 | Hay scroll en un diálogo o en el comparador | Es intencional para mantener accesibles todos los datos. En ventanas muy pequeñas también se permite scroll general. |
 | Desarrollo no inicia porque 5183 está ocupado | Identifica qué proceso usa el puerto. No cierres procesos ajenos ni reutilices el servidor web de 5173. |
 | El empaquetador espera porque un EXE está bloqueado | Cierra únicamente tu copia de ese ejecutable y espera a que termine cualquier análisis de seguridad. No desactives el antivirus. |
@@ -450,8 +519,10 @@ disponibilidad real, festivos ni cálculos astronómicos.
 Las texturas de la Tierra proceden de los ejemplos de
 [three-globe](https://github.com/vasturiano/three-globe) y
 [globe.gl](https://github.com/vasturiano/globe.gl); se conserva su licencia MIT en
-`public\earth-textures.LICENSE.txt` y en el build. El sol y la luna se generan
-proceduralmente con el código del proyecto, sin texturas descargadas.
+`public\earth-textures.LICENSE.txt` y en el build. Los fondos diurno y nocturno son
+copias WebP de las imágenes aportadas por el usuario para esta app; no se les
+atribuye una licencia de terceros ni quedan cubiertos por la licencia de las
+texturas terrestres.
 
 `src\zone.tab` conserva el aviso de dominio público de IANA. Electron/Chromium
 incluyen sus avisos en la distribución (`LICENSE.electron.txt` y

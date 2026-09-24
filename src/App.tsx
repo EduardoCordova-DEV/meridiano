@@ -11,7 +11,7 @@ import { messages } from './i18n'
 import { sharedPreset } from './palette'
 import { BASE_ZONE, ConversionError, getClockDetails, MAX_DATE, mexicoInputAt, mexicoInputToInstant, MIN_DATE, shiftMexicoDate } from './time'
 import type { ConversionErrorCode } from './time'
-import type { HourCycle, Language, PalettePreview, Personalization, Theme, WorldClock } from './types'
+import type { HourCycle, Language, PalettePreview, Personalization, WorldClock } from './types'
 import { zoneInfo } from './zones'
 import { zoneNames } from './zone-names'
 import { useClockPagination } from './useClockPagination'
@@ -38,14 +38,17 @@ function TimeDisplay({ details, large = false }: { details: ReturnType<typeof ge
   return <div className={`time-display${large ? ' time-display-large' : ''}`}><span>{details.time}</span><span className="seconds">:{details.seconds}</span>{details.period && <span className="period">{details.period}</span>}</div>
 }
 
-function ClockCard({ clock, instant, hourCycle, language, theme, active, onEdit, onRemove }: { clock: WorldClock; instant: number; hourCycle: HourCycle; language: Language; theme: Theme; active: boolean; onEdit: () => void; onRemove: () => void }) {
+function ClockCard({ clock, instant, hourCycle, language, onEdit, onRemove }: { clock: WorldClock; instant: number; hourCycle: HourCycle; language: Language; onEdit: () => void; onRemove: () => void }) {
   const t = messages(language)
   const place = zoneInfo(clock.zone, language)
   const details = getClockDetails(instant, clock.zone, hourCycle, language)
   return (
-    <article className="clock-card" aria-label={t.clockName(place.city, clock.label)}>
-      <div className="card-top"><span className={`day-icon ${details.isDay ? 'daytime' : 'nighttime'}`} title={details.isDay ? t.daytime : t.nighttime}><Icon name={details.isDay ? 'sun' : 'moon'} size={21} /></span><div className="card-actions"><button className="icon-button" aria-label={t.editClockName(place.city)} onClick={onEdit}><Icon name="edit" size={16} /></button><button className="icon-button" aria-label={t.removeClockName(place.city)} onClick={onRemove}><Icon name="close" size={17} /></button></div></div>
-      {clock.caseNumber && <div className="case-reference"><span className="case-badge">{clock.caseNumber}</span></div>}
+    <article className="clock-card" data-daytime={details.isDay} aria-label={t.clockName(place.city, clock.label)}>
+      <div className="card-top">
+        <span className="sr-only">{details.isDay ? t.daytime : t.nighttime}</span>
+        {clock.caseNumber && <div className="case-reference"><span className="case-badge">{clock.caseNumber}</span></div>}
+        <div className="card-actions"><button className="icon-button" aria-label={t.editClockName(place.city)} onClick={onEdit}><Icon name="edit" size={16} /></button><button className="icon-button" aria-label={t.removeClockName(place.city)} onClick={onRemove}><Icon name="close" size={17} /></button></div>
+      </div>
       <p className="client-label">{clock.label || place.country}</p>
       <h3>{place.city}</h3>
       <p className="iana-zone">{clock.zone}</p>
@@ -54,20 +57,20 @@ function ClockCard({ clock, instant, hourCycle, language, theme, active, onEdit,
       <p className="card-date">{details.date}</p>
       <div className="card-footer"><span className="difference">{details.difference}</span><span className={`day-badge${details.dayDifference ? ' different-day' : ''}`}>{details.dayLabel}</span></div>
       <p className="card-offset"><span>{details.zoneName}</span> · <span>{details.offset}</span></p>
-      <CelestialBackdrop kind={details.isDay ? 'sun' : 'moon'} active={active} language={language} theme={theme} />
+      <CelestialBackdrop isDay={details.isDay} language={language} />
     </article>
   )
 }
 
-function ClockCards({ clocks, instant, hourCycle, language, theme, active, revealId, onEdit, onRemove }: {
-  clocks: WorldClock[]; instant: number; hourCycle: HourCycle; language: Language; theme: Theme; active: boolean; revealId: string | null
+function ClockCards({ clocks, instant, hourCycle, language, revealId, onEdit, onRemove }: {
+  clocks: WorldClock[]; instant: number; hourCycle: HourCycle; language: Language; revealId: string | null
   onEdit: (clock: WorldClock) => void; onRemove: (clock: WorldClock) => void
 }) {
   const t = messages(language)
   const pagination = useClockPagination(clocks, revealId)
   return <div ref={pagination.container} className="clock-pages">
     <div className="clock-grid">
-      {pagination.visible.map((clock) => <ClockCard key={clock.id} clock={clock} instant={instant} hourCycle={hourCycle} language={language} theme={theme} active={active} onEdit={() => onEdit(clock)} onRemove={() => onRemove(clock)} />)}
+      {pagination.visible.map((clock) => <ClockCard key={clock.id} clock={clock} instant={instant} hourCycle={hourCycle} language={language} onEdit={() => onEdit(clock)} onRemove={() => onRemove(clock)} />)}
     </div>
     {pagination.pages > 1 && <nav className="clock-pagination" aria-label={t.clockPages}>
       <button type="button" className="icon-button" aria-label={t.previousClocks} disabled={pagination.page === 0} onClick={() => pagination.goTo(pagination.page - 1)}><Icon name="arrow" size={16} style={{ transform: 'rotate(180deg)' }} /></button>
@@ -243,7 +246,7 @@ export default function App() {
             </div>
           </div>
           {clockView === 'timeline' && <TimeComparison clocks={preferences.clocks} instant={instant} hourCycle={preferences.hourCycle} language={language} live={mode === 'now'} error={conversionError} onSelect={selectInstant} onNavigate={navigateDay} onNow={returnToNow} onAdd={() => setDialog({ clock: null })} onEdit={(clock) => setDialog({ clock })} onRemove={removeClock} />}
-          {clockView === 'cards' && (preferences.clocks.length ? <ClockCards clocks={preferences.clocks} instant={instant} hourCycle={preferences.hourCycle} language={language} theme={theme} active={mode === 'now'} revealId={revealClockId} onEdit={(clock) => setDialog({ clock })} onRemove={removeClock} /> : <div className="empty-state"><Icon name="globe" size={38} /><h3>{t.emptyTitle}</h3><p>{t.emptyDescription}</p><button className="button button-primary" onClick={() => setDialog({ clock: null })}><Icon name="plus" size={18} />{t.addFirstClock}</button></div>)}
+          {clockView === 'cards' && (preferences.clocks.length ? <ClockCards clocks={preferences.clocks} instant={instant} hourCycle={preferences.hourCycle} language={language} revealId={revealClockId} onEdit={(clock) => setDialog({ clock })} onRemove={removeClock} /> : <div className="empty-state"><Icon name="globe" size={38} /><h3>{t.emptyTitle}</h3><p>{t.emptyDescription}</p><button className="button button-primary" onClick={() => setDialog({ clock: null })}><Icon name="plus" size={18} />{t.addFirstClock}</button></div>)}
         </section>
         </div>
       </main>

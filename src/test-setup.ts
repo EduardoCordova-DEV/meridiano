@@ -2,12 +2,6 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
 import { afterEach, beforeEach, vi } from 'vitest'
 
-// DOM suites do not have Canvas 2D; real pixels are covered in browser/Electron tests.
-vi.mock('./celestial-renderer', () => ({
-  CELESTIAL_SIZE: 320,
-  createCelestialRenderer: vi.fn(() => ({ draw: vi.fn() })),
-}))
-
 beforeEach(() => {
   vi.stubGlobal('matchMedia', vi.fn((query: string): MediaQueryList => ({
     matches: false,

@@ -15,6 +15,11 @@ describe('dashboard', () => {
     render(<App />)
     expect(document.querySelector('.add-clock-card, .help-strip')).toBeNull()
     expect(screen.getAllByRole('article')).toHaveLength(3)
+    for (const card of screen.getAllByRole('article')) {
+      expect(card.querySelector('.day-icon')).toBeNull()
+      expect(within(card).getByText((text) => text === t.daytime || text === t.nighttime)).toHaveClass('sr-only')
+      expect(within(card).getAllByRole('button')).toHaveLength(2)
+    }
     expect(screen.getByRole('contentinfo')).toHaveTextContent(t.privacyDescription)
     expect(window.localStorage.getItem(STORAGE_KEY)).toBe(JSON.stringify(preferences))
     fireEvent.click(screen.getByRole('button', { name: t.addClock }))
